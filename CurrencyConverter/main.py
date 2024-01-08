@@ -1,21 +1,17 @@
 import requests
 
-
 def get_exchange_rate(api_key, from_currency, to_currency):
     url = f"https://open.er-api.com/v6/latest/{from_currency}"
     params = {"apikey": api_key}
 
-    response = requests.get(url, params=params)
-
-    if response.status_code == 200:
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
         data = response.json()
         return data["rates"].get(to_currency)
-    else:
-        print(
-            f"Error: Unable to fetch exchange rate. Status code: {response.status_code}"
-        )
+    except requests.exceptions.RequestException as e:
+        print(f"Error: Unable to fetch exchange rate. {e}")
         return None
-
 
 def convert_currency_with_api(amount, from_currency, to_currency, api_key):
     exchange_rate = get_exchange_rate(api_key, from_currency, to_currency)
@@ -30,7 +26,6 @@ def convert_currency_with_api(amount, from_currency, to_currency, api_key):
         return "Conversion failed."
 
 
-# Example usage:
 api_key = "your_exchange_rate_api_key"
 amount_to_convert = float(input("Enter the amount to convert: "))
 from_currency = input("Enter the source currency in ISO code: ")
